@@ -24,6 +24,9 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "Socket.h"
+#include "SocketFactory.h"
+
 namespace logging = boost::log;
 namespace src = boost::log::sources;
 namespace sinks = boost::log::sinks;
