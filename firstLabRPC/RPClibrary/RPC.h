@@ -13,6 +13,17 @@
 #include <boost/log/utility/setup/console.hpp>
 #include <boost/log/utility/setup/file.hpp>
 
+#include <cerrno>
+#include <cstring>
+#include <fcntl.h>
+#include <memory>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <string>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <unistd.h>
+
 namespace logging = boost::log;
 namespace src = boost::log::sources;
 namespace sinks = boost::log::sinks;
