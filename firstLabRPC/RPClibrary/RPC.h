@@ -24,6 +24,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "NetworkManager.h"
+
 namespace logging = boost::log;
 namespace src = boost::log::sources;
 namespace sinks = boost::log::sinks;
@@ -47,4 +49,4 @@ void InitLog()
 #define LOG_INFO(text)  BOOST_LOG_SEV(lg, logging::trivial::info) << #text
 #define LOG_WARNING(text) BOOST_LOG_SEV(lg, logging::trivial::warning) << #text
 #define LOG_ERROR(text) BOOST_LOG_SEV(lg, logging::trivial::error) << #text
-#define LOG_FATAL(text) BOOST_LOG_SEV(lg, flogging::trivial::atal) << #text
+#define LOG_FATAL(text) BOOST_LOG_SEV(lg, logging::trivial::fatal) << #text

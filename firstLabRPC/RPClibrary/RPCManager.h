@@ -4,43 +4,48 @@
 
 #pragma once
 
+#include "RPC.h"
 #include <string>
 #include <unordered_map>
-#include "Stream.h"
+
+/** @brief Empty macro for rpc parser */
+#define RPC(id)
 
 typedef void (*RPCWrapFunction)(class InputMemoryBitStream&);
-
-namespace
-{
-    template<typename T>
-    concept function = std::is_function<T>::value;
-}
 
 class RPCManager
 {
 public:
-    RPCManager();
-    virtual ~RPCManager();
+    RPCManager() = delete;
+    virtual ~RPCManager() = delete;
 
-    template<typename T, typename ...arg>
-    requires function<T>
-    void RegistrFunction(T function)
+    inline static void RegisterFunction(RPCWrapFunction func, uint32_t id)
     {
-        RPCWrapFunction func = [function](InputMemoryBitStream& stream){
-            using arguments = std::tuple<arg...>;
-            auto i = std::tuple_size<arguments>::value;
-            for (int arguments_amount = 0; arguments_amount < i; arguments_amount++)
-            {
-                std::tuple_element_t<0, arguments> A;
-                stream.Read(A);
-                function(A);
-            }
-        };
+        if (m_WrappedFunctions.at(id) != nullptr)
+        {
+            LOG_FATAL(id exists);
+            std::exit(-1);
+        }
+        else
+        {
+            m_WrappedFunctions[id] = func;
+            LOG_DEBUG(function added to rpc manager);
+        }
+    }
+
+    inline static void Proccess(uint32_t id, InputMemoryBitStream& inStream)
+    {
+        if (m_WrappedFunctions.find(id) != m_WrappedFunctions.end())
+        {
+            m_WrappedFunctions.at(id)(inStream);
+            LOG_DEBUG(execute received function);
+        }
+        else
+        {
+            LOG_FATAL(function doesnt exists);
+        }
     }
 
 protected:
-    uint32_t GetFreeID() const;
-
-    uint32_t free_id;
-    std::unordered_map<uint32_t, RPCWrapFunction> m_WrappedFunctions;
+    inline static std::unordered_map<uint32_t, RPCWrapFunction> m_WrappedFunctions{};
 };
