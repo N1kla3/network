@@ -30,7 +30,7 @@ enum class MANAGER_MODE
     FREQUENCY
 };
 /**
- * @brief
+ * @brief class for RPC server and client manipulations
  */
 class NetworkManager
 {
@@ -73,4 +73,6 @@ protected:
     float m_NetFrequency = 1.f;
 
     MANAGER_MODE m_Mode = MANAGER_MODE::FREQUENCY;
+
+    MANAGER_TYPE m_Type;
 };
