@@ -4,10 +4,19 @@
 
 #pragma once
 
-struct manager_info
+#include "SocketUtil.h"
+
+struct ManagerInfo
 {
     std::string name;
 
+};
+
+enum SECURITY_LEVEL
+{
+	LOW,
+	COMMON,
+	HIGH
 };
 
 enum PACKET
@@ -35,7 +44,7 @@ enum class MANAGER_MODE
 class NetworkManager
 {
 public:
-    NetworkManager(MANAGER_TYPE Type);
+    NetworkManager(MANAGER_TYPE type, int port);
 
     virtual ~NetworkManager();
 
@@ -51,6 +60,18 @@ public:
 
     void ReceivePacket();
 
+    void HandleHelloPacket();
+
+    void HandleRejectedPacket();
+
+    void HandleFunctionPacket();
+
+    void SendHello();
+
+    void SendRejected();
+
+    void SendFunction();
+
     /** @brief Check received data per second */
     void SetNetFrequency(float frequency);
 
@@ -58,7 +79,11 @@ public:
 
     void SetManagerMode(MANAGER_MODE mode) const;
 
-    MANAGER_MODE GetManagerMode() const;
+    void SetSecurityLevel(SECURITY_LEVEL level) noexcept {m_Level = level;};
+
+    [[nodiscard]] MANAGER_MODE GetManagerMode() const;
+
+    [[nodiscard]] MANAGER_TYPE GetManagerType() const noexcept;
 
     void Connect(const std::string& address);
 
@@ -66,13 +91,26 @@ public:
 
 protected:
 
-    bool bContainSendData = false;
+    int bContainSendData:1 = 0;
 
-    bool bContainReceiveData = false;
+    int bContainReceiveData:1 = 0;
 
     float m_NetFrequency = 1.f;
 
     MANAGER_MODE m_Mode = MANAGER_MODE::FREQUENCY;
 
-    MANAGER_TYPE m_Type;
+    SECURITY_LEVEL m_Level = LOW;
+
+    std::unique_ptr<class InputMemoryBitStream> m_InStreamPtr;
+
+    std::unique_ptr<class OutputMemoryBitStream> m_OutStreamPtr;
+
+    TCPSocketPtr m_Socket;
+
+    ManagerInfo m_Info;
+
+private:
+	int m_Port;
+
+	MANAGER_TYPE m_Type;
 };

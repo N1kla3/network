@@ -6,16 +6,31 @@
 #include "RPCManager.h"
 
 #include "NetworkManager.h"
+#include "Socket.h"
 
 
-NetworkManager::NetworkManager(MANAGER_TYPE Type) :
-	m_Type(Type)
+NetworkManager::NetworkManager(MANAGER_TYPE type, int port)
+		:
+		m_Type(type),
+		m_Port(port)
 {
+
+	m_Socket = SocketUtil::CreateTCPSocket(INET);
+	SocketAddress addr(INADDR_ANY, port);
+	m_Socket->Bind(addr);
+
+	if (type == MANAGER_TYPE::SERVER)
+	{
+		LOG_INFO(Server at port) << port;
+	}
+	else if (type == MANAGER_TYPE::CLIENT)
+	{
+		LOG_INFO(Client init at port ) << port;
+	}
 }
 
 NetworkManager::~NetworkManager()
-{
-}
+= default;
 
 void NetworkManager::CreatePacket()
 {
@@ -53,4 +68,10 @@ void NetworkManager::Connect(const std::string& address)
 
 void NetworkManager::Tick(float deltaTime)
 {
+}
+
+MANAGER_TYPE NetworkManager::GetManagerType() const noexcept
+{
+
+	return m_Type;
 }

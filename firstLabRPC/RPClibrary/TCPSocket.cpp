@@ -76,3 +76,8 @@ int32_t TCPSocket::Receive(void* inBuffer, size_t inLen)
     }
     return bytesReceivedCount;
 }
+
+void TCPSocket::SetNonBlocking()
+{
+	fcntl(m_Socket, F_SETFL, fcntl(m_Socket, F_GETFL) | O_NONBLOCK);
+}
