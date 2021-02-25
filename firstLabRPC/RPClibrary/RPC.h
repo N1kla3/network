@@ -43,6 +43,27 @@ void InitLog()
     logging::add_common_attributes();
 }
 
+template<int tValue, int tBits>
+struct GetRequiredBitsHelper {
+	enum {
+		VALUE = GetRequiredBitsHelper<(tValue >> 1), tBits + 1>::VALUE
+	};
+};
+
+template<int tBits>
+struct GetRequiredBitsHelper<0, tBits> {
+	enum {
+		VALUE = tBits
+	};
+};
+
+template<int tValue>
+struct GetRequiredBits {
+	enum {
+		VALUE = GetRequiredBitsHelper<tValue, 0>::VALUE
+	};
+};
+
 
 #define LOG_TRACE(text) BOOST_LOG_SEV(lg, logging::trivial::trace) << #text
 #define LOG_DEBUG(text) BOOST_LOG_SEV(lg, logging::trivial::debug) << #text

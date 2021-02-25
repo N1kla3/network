@@ -10,6 +10,8 @@ struct ManagerInfo
 {
     std::string name;
 
+    void Write(class OutputMemoryBitStream& stream);
+    void Read(class InputMemoryBitStream& stream);
 };
 
 enum SECURITY_LEVEL
@@ -44,7 +46,7 @@ enum class MANAGER_MODE
 class NetworkManager
 {
 public:
-    NetworkManager(MANAGER_TYPE type, int port);
+    explicit NetworkManager(MANAGER_TYPE type, int port = 22222);
 
     virtual ~NetworkManager();
 
@@ -56,9 +58,7 @@ public:
 
     void CreatePacket();
 
-    void SendPacket();
-
-    void ReceivePacket();
+    void HandlePacket();
 
     void HandleHelloPacket();
 
@@ -77,7 +77,7 @@ public:
 
     inline void HaveReceivedData() const noexcept;
 
-    void SetManagerMode(MANAGER_MODE mode) const;
+    void SetManagerMode(MANAGER_MODE mode);
 
     void SetSecurityLevel(SECURITY_LEVEL level) noexcept {m_Level = level;};
 
@@ -87,13 +87,25 @@ public:
 
     void Connect(const std::string& address);
 
+    /** @brief Should be called in while, do nothing if MANUAL mode enabled */
     void Tick(float deltaTime);
 
 protected:
 
+	// Security functions
+	virtual bool ValidateLowLevel(ManagerInfo info) const;
+	virtual bool ValidateCommonLevel(ManagerInfo info) const;
+	virtual bool ValidateHighLevel(ManagerInfo info) const;
+
     int bContainSendData:1 = 0;
 
     int bContainReceiveData:1 = 0;
+
+    int bClientConnected:1 = 0;
+
+    int bClientApproved:1 = 0;
+
+
 
     float m_NetFrequency = 1.f;
 
@@ -111,6 +123,8 @@ protected:
 
 private:
 	int m_Port;
+
+	std::vector<TCPSocketPtr> m_ServerConnections{};
 
 	MANAGER_TYPE m_Type;
 };
