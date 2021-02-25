@@ -7,6 +7,7 @@
 #include "SocketFactory.h"
 #include <memory>
 #include "Socket.h"
+#include "NetworkManager.h"
 
 
 NetworkManager::NetworkManager(MANAGER_TYPE type, int port)
@@ -42,10 +43,6 @@ void NetworkManager::SetNetFrequency(float frequency)
 	m_NetFrequency = frequency;
 }
 
-void NetworkManager::HaveReceivedData() const noexcept
-{
-}
-
 void NetworkManager::SetManagerMode(MANAGER_MODE mode)
 {
 	m_Mode = mode;
@@ -69,11 +66,10 @@ void NetworkManager::Connect(const std::string& address)
 
 		if (bClientConnected)
 		{
-			m_OutStreamPtr = std::make_unique<OutputMemoryBitStream>(OutputMemoryBitStream());
+			m_OutStreamPtr = std::make_unique<OutputMemoryBitStream>();
 			SendHello();
 			m_Socket->Send(m_OutStreamPtr->GetBufferPtr(), m_OutStreamPtr->GetByteLength());
 
-			m_Socket->SetBlocking();
 			char buffer[32];
 			for (int i = 0; i < 5; i++)
 			{
@@ -107,6 +103,11 @@ void NetworkManager::Connect(const std::string& address)
 
 void NetworkManager::Tick(float deltaTime)
 {
+	//TODO some variables
+	if (m_Mode == MANAGER_MODE::FREQUENCY)
+	{
+
+	}
 }
 
 MANAGER_TYPE NetworkManager::GetManagerType() const noexcept
@@ -132,7 +133,7 @@ void NetworkManager::HandleHelloPacket(const TCPSocketPtr& socket)
 			OutputMemoryBitStream stream;
 			stream.WriteBits(PACKET::HELLO, GetRequiredBits<PACKET::MAX>::VALUE);
 			socket->Send(stream.GetBufferPtr(), stream.GetByteLength());
-			m_ServerConnections->push_back(socket);
+			m_ServerConnections->insert(std::make_pair(info.name, socket));
 			LOG_INFO(Client added to clients - ) << info.name;
 		}
 		else
@@ -143,13 +144,8 @@ void NetworkManager::HandleHelloPacket(const TCPSocketPtr& socket)
 	}
 }
 
-/** Client-Side only */
-void NetworkManager::HandleRejectedPacket()
-{
 
-}
-
-void NetworkManager::HandleFunctionPacket()
+void NetworkManager::HandleFunctionPacket(InputMemoryBitStream& stream)
 {
 
 }
@@ -164,14 +160,54 @@ void NetworkManager::SendHello()
 	}
 }
 
-void NetworkManager::SendRejected(TCPSocketPtr socket)
+void NetworkManager::SendRejected(const TCPSocketPtr& socket)
 {
-
+	OutputMemoryBitStream stream;
+	stream.WriteBits(PACKET::REJECT, GetRequiredBits<PACKET::MAX>::VALUE);
+	socket->Send(stream.GetBufferPtr(), stream.GetByteLength());
 }
 
 void NetworkManager::SendFunction()
 {
 
+}
+
+void NetworkManager::HandlePacket(const TCPSocketPtr& socket)
+{
+	PACKET packet;
+	int received = socket->Receive(&packet, 1);
+	if (received > 0)
+	{
+		if (packet == PACKET::DATA)
+		{
+			socket->SetBlocking();
+			uint32_t data_len = 0;
+			received = socket->Receive(&data_len, sizeof(data_len));
+			if (received > 0)
+			{
+				char buffer[1024];
+				received = socket->Receive(buffer, data_len);
+				//TODO big packet
+				if (received > 0)
+				{
+					InputMemoryBitStream stream(buffer, data_len);
+					while (stream.GetRemainingBitCount() > 0)
+					{
+						stream.ReadBits(&packet, GetRequiredBits<PACKET::MAX>::VALUE);
+						if (packet == PACKET::FUNCTION)
+						{
+							HandleFunctionPacket(stream);
+						}
+					}
+				}
+			}
+			socket->SetNonBlocking();
+		}
+		else if (packet == PACKET::REJECT && m_Type == MANAGER_TYPE::CLIENT)
+		{
+
+		}
+	}
 }
 
 void ManagerInfo::Write(OutputMemoryBitStream& stream)

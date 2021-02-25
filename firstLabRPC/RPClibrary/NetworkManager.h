@@ -5,6 +5,7 @@
 #pragma once
 
 #include "SocketUtil.h"
+#include "Stream.h"
 
 struct ManagerInfo
 {
@@ -25,6 +26,7 @@ enum PACKET
 {
     HELLO,
     REJECT,
+    DATA,
     FUNCTION,
     MAX
 };
@@ -58,24 +60,20 @@ public:
 
     void CreatePacket();
 
-    void HandlePacket();
+    void HandlePacket(const TCPSocketPtr& socket);
 
     void HandleHelloPacket(const TCPSocketPtr& socket);
 
-    void HandleRejectedPacket();
-
-    void HandleFunctionPacket();
+    void HandleFunctionPacket(InputMemoryBitStream& stream);
 
     void SendHello();
 
-    void SendRejected(TCPSocketPtr socket);
+    void SendRejected(const TCPSocketPtr& socket);
 
     void SendFunction();
 
     /** @brief Check received data per second */
     void SetNetFrequency(float frequency);
-
-    inline void HaveReceivedData() const noexcept;
 
     void SetManagerMode(MANAGER_MODE mode);
 
@@ -124,7 +122,9 @@ protected:
 private:
 	int m_Port;
 
-	std::unique_ptr<std::vector<TCPSocketPtr>> m_ServerConnections;
+	// User DATA
+	std::unique_ptr<std::unordered_map<std::string, TCPSocketPtr>> m_ServerConnections;
+	std::unique_ptr<std::unordered_map<std::string, ManagerInfo>> m_ServerClientsInfo;
 
 	MANAGER_TYPE m_Type;
 };
