@@ -2,6 +2,7 @@
 // Created by nicola on 15/02/2021.
 //
 
+#include "RPC.h"
 #include "TCPSocket.h"
 #include "Socket.h"
 #include "SocketUtil.h"
@@ -80,4 +81,9 @@ int32_t TCPSocket::Receive(void* inBuffer, size_t inLen)
 void TCPSocket::SetNonBlocking()
 {
 	fcntl(m_Socket, F_SETFL, fcntl(m_Socket, F_GETFL) | O_NONBLOCK);
+}
+
+void TCPSocket::SetBlocking()
+{
+	fcntl(m_Socket, F_SETFL, fcntl(m_Socket, F_GETFL) ^ ~O_NONBLOCK);
 }

@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "RPC.h"
 #include "TCPSocket.h"
 
 enum SocketAddressFamily

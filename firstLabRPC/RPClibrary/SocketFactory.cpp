@@ -2,6 +2,7 @@
 // Created by nicola on 15/02/2021.
 //
 
+#include "RPC.h"
 #include "SocketFactory.h"
 
 SocketAddressPtr SocketFactory::CreateIPv4FromString(const std::string& inString)

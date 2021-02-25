@@ -3,6 +3,8 @@
 //
 #pragma once
 
+//boost headers
+//////////////////////////////////////////////////////////////////////////////////////////
 #include <boost/log/core.hpp>
 #include <boost/log/expressions.hpp>
 #include <boost/log/sinks/text_file_backend.hpp>
@@ -13,6 +15,8 @@
 #include <boost/log/utility/setup/console.hpp>
 #include <boost/log/utility/setup/file.hpp>
 
+//standard headers
+//////////////////////////////////////////////////////////////////////////////////////////
 #include <cerrno>
 #include <cstring>
 #include <fcntl.h>
@@ -23,8 +27,9 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <vector>
+#include <algorithm>
 
-#include "NetworkManager.h"
 
 namespace logging = boost::log;
 namespace src = boost::log::sources;
@@ -71,3 +76,10 @@ struct GetRequiredBits {
 #define LOG_WARNING(text) BOOST_LOG_SEV(lg, logging::trivial::warning) << #text
 #define LOG_ERROR(text) BOOST_LOG_SEV(lg, logging::trivial::error) << #text
 #define LOG_FATAL(text) BOOST_LOG_SEV(lg, logging::trivial::fatal) << #text
+
+// My headers
+//////////////////////////////////////////////////////////////////////////////////////////
+#include "NetworkManager.h"
+#include "RPCManager.h"
+#include "TCPSocket.h"
+#include "SocketUtil.h"

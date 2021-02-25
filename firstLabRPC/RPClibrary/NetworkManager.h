@@ -60,7 +60,7 @@ public:
 
     void HandlePacket();
 
-    void HandleHelloPacket();
+    void HandleHelloPacket(const TCPSocketPtr& socket);
 
     void HandleRejectedPacket();
 
@@ -68,7 +68,7 @@ public:
 
     void SendHello();
 
-    void SendRejected();
+    void SendRejected(TCPSocketPtr socket);
 
     void SendFunction();
 
@@ -93,9 +93,9 @@ public:
 protected:
 
 	// Security functions
-	virtual bool ValidateLowLevel(ManagerInfo info) const;
-	virtual bool ValidateCommonLevel(ManagerInfo info) const;
-	virtual bool ValidateHighLevel(ManagerInfo info) const;
+	[[nodiscard]] virtual bool ValidateLowLevel(const ManagerInfo& info) const {return true;};
+	[[nodiscard]] virtual bool ValidateCommonLevel(const ManagerInfo& info) const {return true;};
+	[[nodiscard]] virtual bool ValidateHighLevel(const ManagerInfo& info) const {return true;};
 
     int bContainSendData:1 = 0;
 
@@ -124,7 +124,7 @@ protected:
 private:
 	int m_Port;
 
-	std::vector<TCPSocketPtr> m_ServerConnections{};
+	std::unique_ptr<std::vector<TCPSocketPtr>> m_ServerConnections;
 
 	MANAGER_TYPE m_Type;
 };

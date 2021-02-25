@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "RPC.h"
 #include <string>
 #include <unordered_map>
 

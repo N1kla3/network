@@ -3,9 +3,7 @@
 //
 
 #include "RPC.h"
-#include "RPCManager.h"
 #include "Stream.h"
-#include "NetworkManager.h"
 #include "SocketFactory.h"
 #include <memory>
 #include "Socket.h"
@@ -58,7 +56,7 @@ MANAGER_MODE NetworkManager::GetManagerMode() const
 	return m_Mode;
 }
 
-/** Not accessible in server */
+/** Client-Side only */
 void NetworkManager::Connect(const std::string& address)
 {
 	if (m_Type == MANAGER_TYPE::CLIENT)
@@ -68,6 +66,41 @@ void NetworkManager::Connect(const std::string& address)
 			LOG_ERROR(NetworkManager::Connect ) << address;
 		}
 		else bClientConnected = true;
+
+		if (bClientConnected)
+		{
+			m_OutStreamPtr = std::make_unique<OutputMemoryBitStream>(OutputMemoryBitStream());
+			SendHello();
+			m_Socket->Send(m_OutStreamPtr->GetBufferPtr(), m_OutStreamPtr->GetByteLength());
+
+			m_Socket->SetBlocking();
+			char buffer[32];
+			for (int i = 0; i < 5; i++)
+			{
+				int received = m_Socket->Receive(buffer, 1);
+				if (received > 0)
+				{
+					m_InStreamPtr = std::make_unique<InputMemoryBitStream>(buffer, GetRequiredBits<PACKET::MAX>::VALUE);
+					PACKET packet;
+					m_InStreamPtr->Read(packet);
+					if (packet == HELLO)
+					{
+						LOG_INFO(Connected to Server);
+						bClientApproved = true;
+					}
+					else if (packet == REJECT)
+					{
+						LOG_INFO(Server reject you);
+						bClientConnected = false;
+					}
+				}
+				else
+				{
+					LOG_INFO(wait responce - ) << i;
+					sleep(1);
+				}
+			}
+		}
 	}
 	else LOG_WARNING(Connect can only be used in client);
 }
@@ -81,17 +114,36 @@ MANAGER_TYPE NetworkManager::GetManagerType() const noexcept
 	return m_Type;
 }
 
-void NetworkManager::HandleHelloPacket()
+/** Server-Only */
+void NetworkManager::HandleHelloPacket(const TCPSocketPtr& socket)
 {
-
 	if (m_Type == MANAGER_TYPE::SERVER)
 	{
 		ManagerInfo info;
 		info.Read(*m_InStreamPtr);
 
+		bool validation = false;
+		if      (m_Level == SECURITY_LEVEL::LOW) validation = ValidateLowLevel(info);
+		else if (m_Level == SECURITY_LEVEL::COMMON) validation = ValidateCommonLevel(info);
+		else if (m_Level == SECURITY_LEVEL::HIGH) validation = ValidateHighLevel(info);
+
+		if (validation)
+		{
+			OutputMemoryBitStream stream;
+			stream.WriteBits(PACKET::HELLO, GetRequiredBits<PACKET::MAX>::VALUE);
+			socket->Send(stream.GetBufferPtr(), stream.GetByteLength());
+			m_ServerConnections->push_back(socket);
+			LOG_INFO(Client added to clients - ) << info.name;
+		}
+		else
+		{
+			LOG_WARNING(Client rejected level validation ) << info.name;
+			SendRejected(socket);
+		}
 	}
 }
 
+/** Client-Side only */
 void NetworkManager::HandleRejectedPacket()
 {
 
@@ -102,6 +154,7 @@ void NetworkManager::HandleFunctionPacket()
 
 }
 
+/** Write to member streams */
 void NetworkManager::SendHello()
 {
 	m_OutStreamPtr->WriteBits(PACKET::HELLO, GetRequiredBits<PACKET::MAX>::VALUE);
@@ -111,7 +164,7 @@ void NetworkManager::SendHello()
 	}
 }
 
-void NetworkManager::SendRejected()
+void NetworkManager::SendRejected(TCPSocketPtr socket)
 {
 
 }

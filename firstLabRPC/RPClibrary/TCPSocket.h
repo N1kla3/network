@@ -4,10 +4,10 @@
 
 #pragma once
 
-#include "RPC.h"
 
 class SocketAddress;
 
+/** @brief Non-blocking by default */
 class TCPSocket
 {
 public:
@@ -25,8 +25,10 @@ public:
 
 	int32_t Receive(void* inBuffer, size_t inLen);
 
-private:
 	void SetNonBlocking();
+
+	void SetBlocking();
+private:
 
 	friend class SocketUtil;
 
