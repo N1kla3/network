@@ -106,7 +106,24 @@ void NetworkManager::Tick(float deltaTime)
 	//TODO some variables
 	if (m_Mode == MANAGER_MODE::FREQUENCY)
 	{
-
+		float per_second = 1 / m_NetFrequency;
+		if (per_second < deltaTime + m_PreviousDelta)
+		{
+			m_PreviousDelta = deltaTime + m_PreviousDelta;
+			return;
+		}
+		else if (per_second > deltaTime + m_PreviousDelta)
+		{
+			m_PreviousDelta = 0.f;
+		}
+		if (m_Type == MANAGER_TYPE::SERVER)
+		{
+			Server_HandleClients();
+		}
+		else if (m_Type == MANAGER_TYPE::CLIENT && bClientConnected && bClientApproved)
+		{
+			HandlePacket(m_Socket);
+		}
 	}
 }
 
@@ -144,10 +161,12 @@ void NetworkManager::HandleHelloPacket(const TCPSocketPtr& socket)
 	}
 }
 
-
+/** @brief Read function and executes it */
 void NetworkManager::HandleFunctionPacket(InputMemoryBitStream& stream)
 {
-
+	uint32_t function_id;
+	stream.Read(function_id);
+	RPCManager::Proccess(function_id, stream);
 }
 
 /** Write to member streams */
@@ -169,7 +188,7 @@ void NetworkManager::SendRejected(const TCPSocketPtr& socket)
 
 void NetworkManager::SendFunction()
 {
-
+	//TODO parser first
 }
 
 void NetworkManager::HandlePacket(const TCPSocketPtr& socket)
@@ -205,8 +224,19 @@ void NetworkManager::HandlePacket(const TCPSocketPtr& socket)
 		}
 		else if (packet == PACKET::REJECT && m_Type == MANAGER_TYPE::CLIENT)
 		{
-
+			bClientConnected = false;
+			bClientApproved = false;
+			LOG_WARNING(you have disconnected);
 		}
+	}
+}
+
+void NetworkManager::Server_HandleClients()
+{
+	for (auto [name, socket] : *m_ServerConnections)
+	{
+		 LOG_INFO(handling client ) << name;
+		 HandlePacket(socket);
 	}
 }
 

@@ -95,6 +95,8 @@ protected:
 	[[nodiscard]] virtual bool ValidateCommonLevel(const ManagerInfo& info) const {return true;};
 	[[nodiscard]] virtual bool ValidateHighLevel(const ManagerInfo& info) const {return true;};
 
+	virtual void Server_HandleClients();
+
     int bContainSendData:1 = 0;
 
     int bContainReceiveData:1 = 0;
@@ -103,7 +105,7 @@ protected:
 
     int bClientApproved:1 = 0;
 
-
+	float m_PreviousDelta = 0.f;
 
     float m_NetFrequency = 1.f;
 
