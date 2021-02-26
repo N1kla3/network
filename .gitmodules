@@ -1,0 +1,6 @@
+[submodule "firstLabRPC/first/RPCLibrary"]
+	path = firstLabRPC/first/RPCLibrary
+	url = https://github.com/N1kla3/RPCLibrary.git
+[submodule "firstLabRPC/second/RPCLibrary"]
+	path = firstLabRPC/second/RPCLibrary
+	url = https://github.com/N1kla3/RPCLibrary.git
