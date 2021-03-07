@@ -12,6 +12,8 @@ HeaderTool(functions.h)
 #       COMMENT "generating files"
 #       )
 
-add_executable(first main.cpp functions.h ${PROJECT_SOURCE_DIR}/RPCLibrary/rpc.generated.h ${PROJECT_SOURCE_DIR}/RPCLibrary/rpc.generated.cpp functions.cpp)
+add_executable(first main.cpp  functions.h ${PROJECT_SOURCE_DIR}/RPCLibrary/rpc.generated.h ${PROJECT_SOURCE_DIR}/RPCLibrary/rpc.generated.cpp functions.cpp)
+add_executable(client  client.cpp functions.h ${PROJECT_SOURCE_DIR}/RPCLibrary/rpc.generated.h ${PROJECT_SOURCE_DIR}/RPCLibrary/rpc.generated.cpp functions.cpp)
 
 target_link_libraries(first RPClibrary )
+target_link_libraries(client RPClibrary)
