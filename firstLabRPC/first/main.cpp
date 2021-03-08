@@ -8,7 +8,7 @@ int main()
 {
 	InitLog();
 	InitRPC();
-	NetworkManager manager(MANAGER_TYPE::SERVER);
+	NetworkManager manager(MANAGER_TYPE::SERVER, 22222);
 
 	for (int i = 0; i < 300; i++)
     {

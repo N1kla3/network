@@ -11,9 +11,12 @@ int main()
 	InitRPC();
 
 	NetworkManager manager(MANAGER_TYPE::CLIENT);
-	manager.Connect("127.0.0.1", 22222);
-
-
-
+	for (int i = 0; i < 5; i++)
+    {
+        manager.Connect("0.0.0.0", 22222);
+		LOG_INFO(5 sec connect);
+		sleep(1);
+	}
+	manager.Client_Disconnect();
 	return 0;
 }
