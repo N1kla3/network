@@ -8,13 +8,13 @@ int main()
 {
 	InitLog();
 	InitRPC();
-	NetworkManager manager(MANAGER_TYPE::SERVER, 22222);
+	auto manager = std::make_unique<NetworkManager>(MANAGER_TYPE::SERVER, 22222);
 
-	for (int i = 0; i < 300; i++)
+	for (int i = 0; i < 1000; i++)
     {
-		manager.Tick(1);
+		manager->Tick(1);
 		sleep(1);
 	}
-	manager.Server_Shutdown();
+	manager->Server_Shutdown();
     return 0;
 }
