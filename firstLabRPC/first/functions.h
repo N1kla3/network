@@ -5,6 +5,9 @@
 #include "RPCLibrary/RPC.h"
 
 RPCfunction()
-void function(int a);
+void function(int a, int b);
+
+RPCfunction()
+void second(int a, const std::string& n);
 
 

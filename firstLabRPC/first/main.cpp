@@ -13,6 +13,7 @@ int main()
 	for (int i = 0; i < 1000; i++)
     {
 		manager->Tick(1);
+		write_function(*manager, 3, 4);
 		sleep(1);
 	}
 	manager->Server_Shutdown();
