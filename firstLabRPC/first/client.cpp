@@ -24,6 +24,7 @@ int main()
 	for (int i = 0; i < 1111; i++)
     {
 		manager.Tick(1);
+		write_second(manager, 2, "message");
 		sleep(1);
 	}
 	manager.Client_Disconnect();
