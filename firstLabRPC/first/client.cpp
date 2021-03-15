@@ -21,7 +21,7 @@ int main()
 		LOG_INFO("5 sec connect");
 		sleep(1);
 	}
-	for (int i = 0; i < 1111; i++)
+	for (int i = 0; i < 30; i++)
     {
 		manager.Tick(1);
         write_second(manager, 2, "message");
