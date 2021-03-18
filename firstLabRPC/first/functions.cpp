@@ -3,19 +3,16 @@
 //
 #include "functions.h"
 
-void function(int a, int b)
+int number = 0;
+
+void increaseNumber(int add)
 {
-	LOG_INFO("function executed") << a;
+    number += add;
+	updated = true;
 }
-void second(int a, const std::string& n)
+
+void answer()
 {
-	LOG_INFO("second executed") << n;
-}
-void third(float a, const std::vector<int>& vec)
-{
-	std::cout << "function third executed";
-    for (auto i : vec)
-    {
-		std::cout << i << " ";
-	}
+	std::cout << "\nNumber now is " << number << " *(/\n";
+	updated = false;
 }

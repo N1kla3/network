@@ -4,11 +4,11 @@
 #pragma once
 #include "RPCLibrary/RPC.h"
 
-RPCfunction()
-void function(int a, int b);
+inline bool updated = false;
 
 RPCfunction()
-void second(int a, const std::string& n);
+void increaseNumber(int add);
+
 
 RPCfunction()
-void third(float a, const std::vector<int>& vec);
+void answer();

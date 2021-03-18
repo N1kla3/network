@@ -9,13 +9,18 @@ int main()
 	InitLog();
 	InitRPC();
 	auto manager = std::make_unique<NetworkManager>(MANAGER_TYPE::SERVER, 22222);
-	std::vector<int> vec{3, 4, 5, 6, 6};
+	manager->SetConnectionTimeLimit(3);
+	manager->SetNetFrequency(0.33f);
+	manager->SetSecurityLevel(SECURITY_LEVEL::COMMON);
 
 	for (int i = 0; i < 300; i++)
     {
 		manager->Tick(1);
-		write_function(*manager, 3, 4);
-		write_third(*manager, 1.f, vec);
+		if (updated)
+        {
+			write_answer(*manager);
+			answer();
+		}
 		sleep(1);
 	}
 	manager->Server_Shutdown();
