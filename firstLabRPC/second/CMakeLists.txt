@@ -1,12 +1,19 @@
+cmake_minimum_required(VERSION 3.17)
 set(CMAKE_CXX_STANDARD 20)
 project(second)
-ADD_DEFINITIONS(-DBOOST_LOG_DYN_LINK)
-find_package(Boost REQUIRED COMPONENTS log log_setup REQUIRED)
 
-include_directories(${Boost_INCLUDE_DIR})
+add_subdirectory(RPCLibrary)
 
-add_library(liba ../RPClibrary/RPC.h ../RPClibrary/RPC.cpp ../RPClibrary/Stream.cpp ../RPClibrary/Stream.h ../RPClibrary/RPCManager.cpp ../RPClibrary/RPCManager.h ../RPClibrary/Socket.cpp ../RPClibrary/Socket.h ../RPClibrary/SocketFactory.cpp ../RPClibrary/SocketFactory.h ../RPClibrary/TCPSocket.cpp ../RPClibrary/TCPSocket.h ../RPClibrary/SocketUtil.cpp ../RPClibrary/SocketUtil.h ../RPClibrary/NetworkManager.cpp ../RPClibrary/NetworkManager.h)
-add_executable(second main.cpp)
+message(${PROJECT_SOURCE_DIR})
+HeaderTool(functions.h)
+#add_custom_command(OUTPUT /home/kolya/CLionProjects/network/firstLabRPC/first/RPCLibrary/rpc.generated.h /home/kolya/CLionProjects/network/firstLabRPC/first/RPCLibrary/rpc.generated.cpp
+#       COMMAND RPCHeaderTool ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/RPCLibrary
+#       DEPENDS functions.h RPCHeaderTool
+#       COMMENT "generating files"
+#       )
 
-target_link_libraries(liba Boost::log Boost::log_setup)
-target_link_libraries(second liba)
+add_executable(second main.cpp  functions.h ${PROJECT_SOURCE_DIR}/RPCLibrary/rpc.generated.h ${PROJECT_SOURCE_DIR}/RPCLibrary/rpc.generated.cpp functions.cpp)
+add_executable(client  client.cpp functions.h ${PROJECT_SOURCE_DIR}/RPCLibrary/rpc.generated.h ${PROJECT_SOURCE_DIR}/RPCLibrary/rpc.generated.cpp functions.cpp)
+
+target_link_libraries(second RPClibrary )
+target_link_libraries(client RPClibrary)
